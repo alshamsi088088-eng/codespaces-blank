@@ -1,0 +1,119 @@
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id                 String    @id @default(cuid())
+  name               String
+  email              String    @unique
+  password           String?
+  role               String    @default("member")
+  avatar             String?
+  bio                String?
+  locale             String    @default("en")
+  theme              String    @default("dark")
+  verified           Boolean   @default(false)
+  verificationToken  String?
+  resetToken         String?
+  resetTokenExpires  DateTime?
+  createdAt          DateTime  @default(now())
+  updatedAt          DateTime  @updatedAt
+}
+
+model Article {
+  id          String   @id @default(cuid())
+  title       String
+  slug        String   @unique
+  excerpt     String
+  content     String
+  category    String
+  language    String
+  readingTime String
+  authorName  String
+  views       Int      @default(0)
+  claps       Int      @default(0)
+  featured    Boolean  @default(false)
+  publishedAt DateTime @default(now())
+}
+
+model Novel {
+  id          String    @id @default(cuid())
+  title       String
+  slug        String    @unique
+  description String
+  coverImage  String
+  authorName  String
+  chapters    Chapter[]
+}
+
+model Chapter {
+  id          String   @id @default(cuid())
+  novel       Novel    @relation(fields: [novelId], references: [id])
+  novelId     String
+  title       String
+  number      Int
+  content     String
+  readingTime String
+}
+
+model Book {
+  id        String   @id @default(cuid())
+  title     String
+  author    String
+  price     Float
+  format    String
+  summary   String
+  coverImage String
+  stock     Int
+  createdAt DateTime @default(now())
+}
+
+model Product {
+  id          String   @id @default(cuid())
+  title       String
+  description String
+  price       Float
+  license     String
+  type        String
+  downloadUrl String
+  publishedAt DateTime @default(now())
+}
+
+model GalleryImage {
+  id        String   @id @default(cuid())
+  title     String
+  category  String
+  imageUrl  String
+  createdAt DateTime @default(now())
+}
+
+model TechArticle {
+  id          String   @id @default(cuid())
+  title       String
+  slug        String   @unique
+  series      String
+  tags        String
+  excerpt     String
+  code        String
+  publishedAt DateTime @default(now())
+}
+
+model Order {
+  id        String   @id @default(cuid())
+  email     String
+  total     Float
+  createdAt DateTime @default(now())
+}
+
+model Message {
+  id        String   @id @default(cuid())
+  author    String
+  text      String
+  createdAt DateTime @default(now())
+}

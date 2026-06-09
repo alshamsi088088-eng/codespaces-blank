@@ -7,7 +7,7 @@ services:
       POSTGRES_PASSWORD: postgres
       POSTGRES_DB: sura_codex
     volumes:
-      - postgres_data:/var/lib/postgresql/data
+      - postgres_data_prod:/var/lib/postgresql/data
     networks:
       - sura
 
@@ -42,7 +42,7 @@ services:
       - sura
 
 volumes:
-  postgres_data:
+  postgres_data_prod:
 
 networks:
   sura:

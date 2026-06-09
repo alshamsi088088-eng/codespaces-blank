@@ -10,7 +10,7 @@ services:
     ports:
       - '5432:5432'
     volumes:
-      - postgres_data:/var/lib/postgresql/data
+      - postgres_data_dev:/var/lib/postgresql/data
 
   adminer:
     image: adminer
@@ -19,4 +19,4 @@ services:
       - '8080:8080'
 
 volumes:
-  postgres_data:
+  postgres_data_dev:

@@ -1,6 +1,8 @@
 
 import { createContext, useContext, useEffect, useState, ReactNode } from 'react';
 import axios from 'axios';
+import { auth } from '../firebaseConfig';
+import { onAuthStateChanged, signOut as firebaseSignOut } from 'firebase/auth';
 import type { UserProfile } from '../types';
 
 interface AuthState {
@@ -23,19 +25,34 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const [user, setUser] = useState<UserProfile | null>(null);
   const [loading, setLoading] = useState(true);
 
-  const fetchProfile = async () => {
-    try {
-      const response = await axios.get('/api/auth/profile', { withCredentials: true });
-      setUser(response.data.user);
-    } catch (error) {
-      setUser(null);
-    } finally {
-      setLoading(false);
-    }
-  };
-
   useEffect(() => {
-    fetchProfile();
+    setLoading(true);
+    const unsubscribe = onAuthStateChanged(auth, async (fbUser) => {
+      if (fbUser) {
+        try {
+          const token = await fbUser.getIdToken();
+          const response = await axios.post(
+            '/api/auth/firebase',
+            { email: fbUser.email, name: fbUser.displayName, photo: fbUser.photoURL, token },
+            { withCredentials: true }
+          );
+          setUser(response.data.user);
+        } catch (error) {
+          console.error('Failed to exchange firebase user with server', error);
+          setUser(null);
+        }
+      } else {
+        // try to read server session (if any)
+        try {
+          const resp = await axios.get('/api/auth/profile', { withCredentials: true });
+          setUser(resp.data.user || null);
+        } catch (e) {
+          setUser(null);
+        }
+      }
+      setLoading(false);
+    });
+    return () => unsubscribe();
   }, []);
 
   const login = async (email: string, password: string) => {
@@ -44,6 +61,11 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   };
 
   const logout = async () => {
+    try {
+      await firebaseSignOut(auth);
+    } catch (e) {
+      console.warn('Firebase sign-out failed', e);
+    }
     await axios.post('/api/auth/logout', {}, { withCredentials: true });
     setUser(null);
   };

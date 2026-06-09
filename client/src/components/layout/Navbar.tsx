@@ -3,6 +3,9 @@ import { Link, NavLink } from 'react-router-dom';
 import { useLocale } from '../../context/LocaleContext';
 import { useTheme } from '../../context/ThemeContext';
 import { useAuth } from '../../context/AuthContext';
+import { signInWithPopup } from 'firebase/auth';
+import { auth, provider } from '../../firebaseConfig';
+import { useEffect, useRef, useState } from 'react';
 
 const navItems = [
   { path: '/', key: 'home' },
@@ -16,9 +19,33 @@ const navItems = [
 ];
 
 export function Navbar() {
-  const { locale, strings, toggle } = useLocale();
-  const { mode } = useTheme();
-  const { user } = useAuth();
+  const { locale, strings, toggle: toggleLocale } = useLocale();
+  const { mode, toggle: toggleTheme } = useTheme();
+  const { user, logout } = useAuth();
+
+  const handleGoogleLogin = async () => {
+    try {
+      const result = await signInWithPopup(auth, provider);
+      console.log('Google sign-in result:', result);
+    } catch (error) {
+      console.error('Google sign-in error:', error);
+    }
+  };
+
+  const [open, setOpen] = useState(false);
+  const menuRef = useRef<HTMLDivElement | null>(null);
+
+  useEffect(() => {
+    function onDocClick(e: MouseEvent) {
+      if (!menuRef.current) return;
+      const target = e.target as Node;
+      if (menuRef.current.contains(target)) return;
+      // if click occurs outside menu, close
+      setOpen(false);
+    }
+    if (open) document.addEventListener('click', onDocClick);
+    return () => document.removeEventListener('click', onDocClick);
+  }, [open]);
 
   return (
     <header className="sticky top-0 z-50 border-b border-sura-border/20 bg-sura-dark/90 backdrop-blur-xl shadow-soft">
@@ -40,10 +67,43 @@ export function Navbar() {
           {user?.role === 'admin' && <NavLink to="/admin" className="text-sm text-sura-ivory/60 transition hover:text-sura-ivory">{strings.admin}</NavLink>}
         </nav>
         <div className="flex items-center gap-2">
-          <button onClick={toggle} className="rounded-full border border-sura-border/30 bg-sura-ink/80 px-3 py-2 text-sm text-sura-ivory transition hover:border-sura-gold/50 hover:text-sura-ivory">
+          {!user && (
+            <button onClick={handleGoogleLogin} className="rounded-full border border-sura-border/30 bg-sura-ink/80 px-3 py-2 text-sm text-sura-ivory transition hover:border-sura-gold/50 hover:text-sura-ivory">
+              Sign in with Google
+            </button>
+          )}
+
+          {user && (
+            <div className="relative">
+              <button
+                onClick={() => setOpen((v) => !v)}
+                className="flex items-center gap-2 rounded-full border border-sura-border/30 bg-sura-ink/80 px-3 py-1 text-sm text-sura-ivory transition hover:border-sura-gold/50"
+                aria-haspopup="menu"
+                aria-expanded={open}
+              >
+                {user.avatar ? (
+                  <img src={user.avatar} alt={user.name} className="h-8 w-8 rounded-full object-cover" />
+                ) : (
+                  <div className="flex h-8 w-8 items-center justify-center rounded-full bg-sura-border/20 text-xs">{user.name?.charAt(0)}</div>
+                )}
+                <span className="hidden truncate text-sm text-sura-ivory/80 sm:inline">{user.name}</span>
+              </button>
+
+              {open && (
+                <div ref={menuRef} className="absolute right-0 mt-2 w-48 origin-top-right rounded-md border border-sura-border/20 bg-sura-ink/95 p-2 shadow-soft">
+                  <Link to="/dashboard" className="block rounded px-3 py-2 text-sm text-sura-ivory/80 hover:bg-sura-ink/80">Dashboard</Link>
+                  <Link to="/settings" className="block rounded px-3 py-2 text-sm text-sura-ivory/80 hover:bg-sura-ink/80">Settings</Link>
+                  <Link to="/profile" className="block rounded px-3 py-2 text-sm text-sura-ivory/80 hover:bg-sura-ink/80">Profile</Link>
+                  <button onClick={logout} className="mt-2 w-full rounded bg-transparent px-3 py-2 text-left text-sm text-sura-ivory/80 hover:bg-sura-ink/80">Sign out</button>
+                </div>
+              )}
+            </div>
+          )}
+
+          <button onClick={toggleTheme} className="rounded-full border border-sura-border/30 bg-sura-ink/80 px-3 py-2 text-sm text-sura-ivory transition hover:border-sura-gold/50 hover:text-sura-ivory">
             {mode === 'dark' ? strings.lightMode : strings.darkMode}
           </button>
-          <button onClick={() => toggle()} className="rounded-full border border-sura-border/30 bg-sura-ink/80 px-3 py-2 text-sm text-sura-ivory transition hover:border-sura-gold/50 hover:text-sura-ivory">{locale === 'en' ? 'AR' : 'EN'}</button>
+          <button onClick={() => toggleLocale()} className="rounded-full border border-sura-border/30 bg-sura-ink/80 px-3 py-2 text-sm text-sura-ivory transition hover:border-sura-gold/50 hover:text-sura-ivory">{locale === 'en' ? 'AR' : 'EN'}</button>
         </div>
       </div>
     </header>

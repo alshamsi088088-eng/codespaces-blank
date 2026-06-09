@@ -1,6 +1,6 @@
 
 import { Router } from 'express';
-import { login, logout, me, register, googleAuthRedirect, googleAuthCallback, appleAuthRedirect, appleAuthCallback, profile, refreshToken, forgotPassword, resetPassword, verifyEmail } from '../controllers/authController.js';
+import { login, logout, me, register, googleAuthRedirect, googleAuthCallback, appleAuthRedirect, appleAuthCallback, profile, refreshToken, forgotPassword, resetPassword, verifyEmail, firebaseAuthCallback } from '../controllers/authController.js';
 import { authGuard } from '../middleware/authGuard.js';
 
 export const authRoutes = Router();
@@ -18,3 +18,4 @@ authRoutes.get('/google/callback', googleAuthCallback);
 authRoutes.get('/apple', appleAuthRedirect);
 authRoutes.all('/apple/callback', appleAuthCallback);
 authRoutes.get('/me', authGuard, profile);
+authRoutes.post('/firebase', firebaseAuthCallback);

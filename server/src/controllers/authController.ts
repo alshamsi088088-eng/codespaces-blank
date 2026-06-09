@@ -8,7 +8,20 @@ import { prisma } from '../services/prisma.js';
 import { createTokenPair, sendAuthCookies } from '../services/tokenService.js';
 import { sendVerificationEmail, sendWelcomeEmail, sendPasswordResetEmail } from '../services/emailService.js';
 import { initGoogleStrategy } from '../services/passportConfig.js';
+import { initFirebaseAdmin, getFirebaseAuth } from '../services/firebaseAdmin.js';
 import { JWT_REFRESH_SECRET } from '../services/config.js';
+
+if (process.env.FIREBASE_SERVICE_ACCOUNT) {
+  try {
+    const serviceAccount = JSON.parse(process.env.FIREBASE_SERVICE_ACCOUNT);
+    initFirebaseAdmin(serviceAccount);
+  } catch (error) {
+    console.warn('Could not parse FIREBASE_SERVICE_ACCOUNT, falling back to application default credentials.');
+    initFirebaseAdmin();
+  }
+} else {
+  initFirebaseAdmin();
+}
 
 initGoogleStrategy();
 
@@ -181,6 +194,53 @@ export async function appleAuthCallback(req: Request, res: Response) {
   const tokens = createTokenPair(user.id);
   sendAuthCookies(res, tokens);
   res.redirect(process.env.CLIENT_URL || 'http://localhost:5173');
+}
+
+export async function firebaseAuthCallback(req: Request, res: Response) {
+  try {
+    const idToken = req.body.token;
+    if (!idToken) return res.status(400).json({ message: 'Missing idToken' });
+
+    const decoded = await getFirebaseAuth().verifyIdToken(idToken);
+    console.debug('Verified Firebase ID token for uid:', decoded.uid, 'email:', decoded.email);
+    const email = decoded.email;
+    const name = decoded.name || req.body.name || 'Firebase Reader';
+    const photo = decoded.picture || req.body.photo || null;
+
+    if (!email) return res.status(400).json({ message: 'Token does not contain an email' });
+
+    let user = await prisma.user.findUnique({ where: { email } });
+    if (!user) {
+      user = await prisma.user.create({
+        data: {
+          name,
+          email,
+          role: 'member',
+          locale: 'en',
+          theme: 'dark',
+          verified: true,
+          avatar: photo
+        }
+      });
+    } else if (photo) {
+      await prisma.user.update({ where: { id: user.id }, data: { avatar: photo } });
+      user = await prisma.user.findUnique({ where: { id: user.id } });
+    }
+
+    const tokens = createTokenPair(user.id);
+    sendAuthCookies(res, tokens);
+    res.json({ user: sanitize(user) });
+  } catch (error: any) {
+    if (
+      error?.code === 'auth/argument-error' ||
+      error?.code === 'auth/id-token-expired' ||
+      error?.code === 'auth/invalid-token'
+    ) {
+      return res.status(401).json({ message: 'Invalid Firebase token' });
+    }
+    console.error('firebaseAuthCallback error', error);
+    res.status(500).json({ message: 'Firebase auth processing failed' });
+  }
 }
 
 export function appleAuthRedirect(req: Request, res: Response) {

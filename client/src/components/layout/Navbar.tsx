@@ -31,7 +31,7 @@ export function Navbar() {
           </div>
         </Link>
         <nav className="hidden items-center gap-3 md:flex">
-          {navItems.map((item) => (
+          {(Array.isArray(navItems) ? navItems : []).map((item) => (
             <NavLink key={item.path} to={item.path} className={({ isActive }) => `rounded-full px-3 py-2 text-sm transition ${isActive ? 'bg-sura-ivory/10 text-sura-gold' : 'text-sura-ivory/70 hover:text-sura-ivory'}`}>
               {strings[item.key] || item.key}
             </NavLink>

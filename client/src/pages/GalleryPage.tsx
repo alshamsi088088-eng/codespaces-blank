@@ -26,7 +26,7 @@ export function GalleryPage() {
         <p className="mt-3 max-w-2xl text-sm leading-7 text-sura-ivory/80">{locale === 'ar' ? 'قصص مرئية وصور تجمع الجو الأدبي والثقافي.' : 'Browse editorial images and creative visual stories with categories and tags.'}</p>
       </header>
       <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-        {items.map((item) => (
+        {(Array.isArray(items) ? items : []).map((item) => (
           <button key={item.id} onClick={() => setActive(item)} className="group overflow-hidden rounded-3xl border border-sura-ivory/10 bg-sura-dark/80 transition hover:-translate-y-1">
             <img src={item.image} alt={item.title} className="h-72 w-full object-cover transition duration-500 group-hover:scale-105" />
             <div className="p-4 text-left">

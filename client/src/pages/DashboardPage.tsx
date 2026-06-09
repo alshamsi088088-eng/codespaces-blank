@@ -36,7 +36,7 @@ export function DashboardPage() {
         <section className="rounded-3xl border border-sura-ivory/10 bg-black/30 p-8">
           <h2 className="text-2xl font-semibold">{locale === 'ar' ? 'الأنشطة الأخيرة' : 'Recent activity'}</h2>
           <div className="mt-4 space-y-3 text-sm text-sura-ivory/80">
-            {history.map((entry) => (<div key={entry}>{entry}</div>))}
+            {(Array.isArray(history) ? history : []).map((entry) => (<div key={entry}>{entry}</div>))}
           </div>
         </section>
       </div>

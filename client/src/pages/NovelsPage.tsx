@@ -52,7 +52,7 @@ export function NovelsPage() {
       <div className="grid gap-6 lg:grid-cols-[280px_1fr]">
         <aside className="space-y-4 rounded-3xl border border-sura-ivory/10 bg-black/30 p-6">
           <div className="text-xs uppercase tracking-[0.3em] text-sura-gold">{locale === 'ar' ? 'رواياتي' : 'My novels'}</div>
-          {novels.map((novel) => (
+          {(Array.isArray(novels) ? novels : []).map((novel) => (
             <button key={novel.id} onClick={() => { setActiveNovel(novel); setActiveChapter(novel.chapters[0]); }} className="block w-full rounded-3xl border border-sura-ivory/10 bg-sura-dark/80 px-4 py-4 text-left text-sm text-sura-ivory transition hover:border-sura-gold/60">
               <div className="font-semibold">{novel.title}</div>
               <div className="mt-2 text-xs text-sura-ivory/70">{novel.description}</div>
@@ -68,7 +68,7 @@ export function NovelsPage() {
             <div className="space-y-3 sm:flex sm:items-center sm:gap-3 sm:space-y-0">
               <button onClick={() => setNightMode((value) => !value)} className="rounded-full border border-sura-ivory/20 px-4 py-2 text-sm">{nightMode ? 'Day reader' : 'Night reader'}</button>
               <select value={fontSize} onChange={(e) => setFontSize(Number(e.target.value))} className="rounded-full border border-sura-ivory/20 bg-transparent px-4 py-2 text-sm">
-                {fontSizes.map((size, index) => (
+                {(Array.isArray(fontSizes) ? fontSizes : []).map((size, index) => (
                   <option key={size} value={index}>{`Font ${index + 1}`}</option>
                 ))}
               </select>
@@ -81,7 +81,7 @@ export function NovelsPage() {
             <p>{activeChapter?.content || '...'}</p>
           </div>
           <div className="mt-8 grid gap-3 rounded-3xl border border-sura-ivory/10 bg-black/20 p-4 sm:grid-cols-3">
-            {activeNovel?.chapters?.map((chapter) => (
+            {(Array.isArray(activeNovel?.chapters) ? activeNovel.chapters : []).map((chapter) => (
               <button key={chapter.id} onClick={() => setActiveChapter(chapter)} className={`rounded-2xl p-4 text-left text-sm transition ${activeChapter?.id === chapter.id ? 'bg-sura-gold text-sura-dark' : 'bg-sura-dark/80 text-sura-ivory/80 hover:bg-sura-dark/100'}`}>
                 <div className="font-semibold">{chapter.title}</div>
                 <div className="mt-1 text-xs">{chapter.readingTime}</div>

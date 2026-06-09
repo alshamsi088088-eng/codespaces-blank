@@ -38,7 +38,7 @@ export function ArticlesPage() {
       <div className="flex flex-col gap-4 rounded-3xl border border-sura-ivory/10 bg-sura-ink/70 p-6 sm:flex-row sm:items-center sm:justify-between">
         <div className="flex flex-wrap gap-2">
           <button onClick={() => setSelected('All')} className={`rounded-full px-4 py-2 text-sm ${selected === 'All' ? 'bg-sura-gold text-sura-dark' : 'border border-sura-ivory/20 text-sura-ivory/80'}`}>All</button>
-          {categories.map((category) => (
+          {(Array.isArray(categories) ? categories : []).map((category) => (
             <button key={category} onClick={() => setSelected(category)} className={`rounded-full px-4 py-2 text-sm ${selected === category ? 'bg-sura-gold text-sura-dark' : 'border border-sura-ivory/20 text-sura-ivory/80'}`}>{category}</button>
           ))}
         </div>
@@ -49,7 +49,7 @@ export function ArticlesPage() {
       </div>
       {viewMode === 'grid' ? (
         <div className="grid gap-6 lg:grid-cols-3">
-          {filtered.map((item) => (
+          {(Array.isArray(filtered) ? filtered : []).map((item) => (
             <article key={item.id} className="rounded-3xl border border-sura-ivory/10 bg-black/30 p-6 transition hover:-translate-y-1 hover:bg-black/50">
               <div className="text-xs uppercase tracking-[0.3em] text-sura-gold">{item.category}</div>
               <h2 className="mt-4 text-xl font-semibold">{item.title}</h2>
@@ -66,7 +66,7 @@ export function ArticlesPage() {
         </div>
       ) : (
         <div className="space-y-4">
-          {filtered.map((item) => (
+          {(Array.isArray(filtered) ? filtered : []).map((item) => (
             <article key={item.id} className="rounded-3xl border border-sura-ivory/10 bg-black/30 p-6">
               <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
                 <div>

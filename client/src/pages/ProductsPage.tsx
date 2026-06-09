@@ -27,7 +27,7 @@ export function ProductsPage() {
         <p className="mt-3 max-w-2xl text-sm leading-7 text-sura-ivory/80">{locale === 'ar' ? 'قوالب ودورات ومواد رقمية مع ترخيص واضح.' : 'Templates, eBooks, and courses with download delivery after purchase.'}</p>
       </header>
       <div className="grid gap-6 md:grid-cols-2">
-        {products.map((product) => (
+        {(Array.isArray(products) ? products : []).map((product) => (
           <article key={product.id} className="rounded-3xl border border-sura-ivory/10 bg-black/30 p-6">
             <div className="flex items-center justify-between gap-3">
               <div>

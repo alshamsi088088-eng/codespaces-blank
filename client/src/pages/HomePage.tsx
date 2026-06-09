@@ -42,7 +42,7 @@ export function HomePage() {
           </div>
         </div>
         <div className="grid gap-4 sm:grid-cols-2">
-          {featured.map((card) => (
+          {(Array.isArray(featured) ? featured : []).map((card) => (
             <article key={card.title} className="rounded-3xl border border-sura-ivory/10 bg-black/20 p-6 shadow-xl shadow-black/20 backdrop-blur-xl">
               <h3 className="text-xl font-semibold text-sura-gold">{card.title}</h3>
               <p className="mt-3 text-sm leading-7 text-sura-ivory/80">{card.description}</p>

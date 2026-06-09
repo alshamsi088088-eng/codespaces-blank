@@ -36,7 +36,7 @@ export function StorePage() {
       </header>
       <div className="grid gap-6 lg:grid-cols-[1.8fr_0.9fr]">
         <div className="grid gap-6 md:grid-cols-2">
-          {books.map((book) => (
+          {(Array.isArray(books) ? books : []).map((book) => (
             <article key={book.id} className="rounded-3xl border border-sura-ivory/10 bg-black/30 p-6">
               <div className="h-52 overflow-hidden rounded-3xl bg-sura-dark/90">
                 <img src={book.coverImage} alt={book.title} className="h-full w-full object-cover" />
@@ -60,7 +60,7 @@ export function StorePage() {
             {cart.length === 0 ? (
               <div className="text-sm text-sura-ivory/70">{locale === 'ar' ? 'السلة فارغة.' : 'Your cart is empty.'}</div>
             ) : (
-              cart.map((item) => (
+              (Array.isArray(cart) ? cart : []).map((item) => (
                 <div key={item.id} className="rounded-3xl border border-sura-ivory/10 bg-black/30 p-4">
                   <div className="font-semibold">{item.title}</div>
                   <div className="text-sm text-sura-ivory/70">{item.format} • ${item.price.toFixed(2)}</div>

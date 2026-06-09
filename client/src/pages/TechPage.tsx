@@ -29,11 +29,11 @@ export function TechPage() {
         <p className="mt-3 max-w-2xl text-sm leading-7 text-sura-ivory/80">{locale === 'ar' ? 'إصدارات تقنية مع شروحات ومجموعات برمجية.' : 'A growing library of developer narratives and code-rich essays.'}</p>
       </header>
       <div className="space-y-6">
-        {articles.map((item) => (
+        {(Array.isArray(articles) ? articles : []).map((item) => (
           <article key={item.id} className="rounded-3xl border border-sura-ivory/10 bg-black/30 p-6">
             <div className="mb-4 flex flex-wrap items-center gap-3 text-xs uppercase tracking-[0.3em] text-sura-gold">
               <span>{item.series}</span>
-              {item.tags?.map((tag) => (<span key={tag} className="rounded-full border border-sura-ivory/20 px-3 py-1">{tag}</span>))}
+              {(Array.isArray(item.tags) ? item.tags : []).map((tag) => (<span key={tag} className="rounded-full border border-sura-ivory/20 px-3 py-1">{tag}</span>))}
             </div>
             <h2 className="text-2xl font-semibold">{item.title}</h2>
             <p className="mt-3 text-sm leading-7 text-sura-ivory/80">{item.excerpt}</p>

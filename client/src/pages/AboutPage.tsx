@@ -22,7 +22,7 @@ export function AboutPage() {
       </section>
       <section className="rounded-3xl border border-sura-ivory/10 bg-sura-ink/80 p-8">
         <div className="grid gap-6 sm:grid-cols-3">
-          {['Craft', 'Quiet', 'Detail'].map((word) => (
+          {(Array.isArray(['Craft', 'Quiet', 'Detail']) ? ['Craft', 'Quiet', 'Detail'] : []).map((word) => (
             <div key={word} className="rounded-3xl bg-black/30 p-6">
               <h3 className="text-2xl font-semibold">{word}</h3>
               <p className="mt-3 text-sm leading-7 text-sura-ivory/80">{locale === 'ar' ? 'تفاصيل دقيقة وسرد ممتع لكل رحلة قراءة.' : 'A calm, intentional experience with every interaction.'}</p>

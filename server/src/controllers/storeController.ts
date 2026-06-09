@@ -10,6 +10,13 @@ export async function getStoreItems(_req: Request, res: Response) {
   res.json({ books });
 }
 
+export async function getUserOrders(req: Request, res: Response) {
+  const user = req.user as any;
+  if (!user?.email) return res.status(401).json({ message: 'Unauthorized' });
+  const orders = await prisma.order.findMany({ where: { email: user.email }, orderBy: { createdAt: 'desc' } });
+  res.json({ orders });
+}
+
 export async function checkout(req: Request, res: Response, next: NextFunction) {
   try {
     const { items } = req.body;

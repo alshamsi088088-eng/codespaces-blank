@@ -7,6 +7,8 @@ import { AuthProvider } from './context/AuthContext';
 import { ChatProvider } from './context/ChatContext';
 import { Navbar } from './components/layout/Navbar';
 import { Footer } from './components/layout/Footer';
+import { Breadcrumbs } from './components/Breadcrumbs';
+import { AnalyticsTracker } from './components/AnalyticsTracker';
 import { HomePage } from './pages/HomePage';
 import { ArticlesPage } from './pages/ArticlesPage';
 import { NovelsPage } from './pages/NovelsPage';
@@ -18,6 +20,7 @@ import { AboutPage } from './pages/AboutPage';
 import { ContactPage } from './pages/ContactPage';
 import { PrivacyPage } from './pages/PrivacyPage';
 import { DashboardPage } from './pages/DashboardPage';
+import { ProfilePage } from './pages/ProfilePage';
 import { AdminPage } from './pages/AdminPage';
 import { LoginPage } from './pages/LoginPage';
 import { RegisterPage } from './pages/RegisterPage';
@@ -34,8 +37,10 @@ export default function App() {
             <BrowserRouter>
               <div className="min-h-screen bg-sura-dark text-sura-ivory transition-colors duration-300">
                 <Navbar />
+                <AnalyticsTracker />
                 <AnimatePresence mode="wait">
                   <main className="mx-auto max-w-7xl px-4 py-10 sm:px-6 lg:px-8">
+                    <Breadcrumbs />
                     <Routes>
                       <Route path="/" element={<HomePage />} />
                       <Route path="/articles" element={<ArticlesPage />} />
@@ -50,6 +55,7 @@ export default function App() {
                       <Route path="/login" element={<LoginPage />} />
                       <Route path="/register" element={<RegisterPage />} />
                       <Route path="/dashboard" element={<ProtectedRoute><DashboardPage /></ProtectedRoute>} />
+                      <Route path="/profile" element={<ProtectedRoute><ProfilePage /></ProtectedRoute>} />
                       <Route path="/admin" element={<AdminRoute><AdminPage /></AdminRoute>} />
                       <Route path="*" element={<NotFoundPage />} />
                     </Routes>

@@ -5,6 +5,7 @@ import ReactDOM from 'react-dom/client';
 import App from './App';
 import { ErrorBoundary } from './components/ErrorBoundary';
 import './styles/index.css';
+import './registerServiceWorker';
 
 axios.defaults.baseURL = import.meta.env.DEV ? 'http://localhost:5173' : '/';
 

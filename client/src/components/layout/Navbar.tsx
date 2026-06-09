@@ -1,5 +1,5 @@
 
-import { Link, NavLink } from 'react-router-dom';
+import { Link, NavLink, useNavigate } from 'react-router-dom';
 import { useLocale } from '../../context/LocaleContext';
 import { useTheme } from '../../context/ThemeContext';
 import { useAuth } from '../../context/AuthContext';
@@ -20,13 +20,17 @@ const navItems = [
 
 export function Navbar() {
   const { locale, strings, toggle: toggleLocale } = useLocale();
-  const { mode, toggle: toggleTheme } = useTheme();
+  const { mode, toggle: toggleTheme, fontSize, fontFamilyKey, setFontSize, setFontFamily } = useTheme();
   const { user, logout } = useAuth();
+  const navigate = useNavigate();
 
   const handleGoogleLogin = async () => {
     try {
       const result = await signInWithPopup(auth, provider);
       console.log('Google sign-in result:', result);
+      const userMetadata = result.user.metadata;
+      const isNewUser = userMetadata.creationTime === userMetadata.lastSignInTime;
+      navigate(isNewUser ? '/profile' : '/dashboard');
     } catch (error) {
       console.error('Google sign-in error:', error);
     }
@@ -66,14 +70,32 @@ export function Navbar() {
           {user && <NavLink to="/dashboard" className="text-sm text-sura-ivory/60 transition hover:text-sura-ivory">{strings.dashboard}</NavLink>}
           {user?.role === 'admin' && <NavLink to="/admin" className="text-sm text-sura-ivory/60 transition hover:text-sura-ivory">{strings.admin}</NavLink>}
         </nav>
-        <div className="flex items-center gap-2">
-          {!user && (
-            <button onClick={handleGoogleLogin} className="rounded-full border border-sura-border/30 bg-sura-ink/80 px-3 py-2 text-sm text-sura-ivory transition hover:border-sura-gold/50 hover:text-sura-ivory">
-              Sign in with Google
+        <div className="flex flex-col items-end gap-2 sm:flex-row sm:items-center">
+          <div className="flex flex-wrap items-center gap-2">
+            <select value={fontSize} onChange={(e) => setFontSize(e.target.value)} className="rounded-full border border-sura-border/30 bg-sura-ink/80 px-3 py-2 text-sm text-sura-ivory outline-none">
+              <option value="0.9rem">S</option>
+              <option value="1rem">M</option>
+              <option value="1.1rem">L</option>
+              <option value="1.2rem">XL</option>
+            </select>
+            <select value={fontFamilyKey} onChange={(e) => setFontFamily(e.target.value)} className="rounded-full border border-sura-border/30 bg-sura-ink/80 px-3 py-2 text-sm text-sura-ivory outline-none">
+              <option value="inter">Inter</option>
+              <option value="georgia">Georgia</option>
+              <option value="space">Space</option>
+            </select>
+            <button onClick={toggleTheme} className="rounded-full border border-sura-border/30 bg-sura-ink/80 px-3 py-2 text-sm text-sura-ivory transition hover:border-sura-gold/50 hover:text-sura-ivory">
+              {mode === 'dark' ? strings.lightMode : strings.darkMode}
             </button>
-          )}
+            <button onClick={() => toggleLocale()} className="rounded-full border border-sura-border/30 bg-sura-ink/80 px-3 py-2 text-sm text-sura-ivory transition hover:border-sura-gold/50 hover:text-sura-ivory">{locale === 'en' ? 'AR' : 'EN'}</button>
+          </div>
+          <div className="flex items-center gap-2">
+            {!user && (
+              <button onClick={handleGoogleLogin} className="rounded-full border border-sura-border/30 bg-sura-ink/80 px-3 py-2 text-sm text-sura-ivory transition hover:border-sura-gold/50 hover:text-sura-ivory">
+                Sign in with Google
+              </button>
+            )}
 
-          {user && (
+            {user && (
             <div className="relative">
               <button
                 onClick={() => setOpen((v) => !v)}
@@ -92,18 +114,12 @@ export function Navbar() {
               {open && (
                 <div ref={menuRef} className="absolute right-0 mt-2 w-48 origin-top-right rounded-md border border-sura-border/20 bg-sura-ink/95 p-2 shadow-soft">
                   <Link to="/dashboard" className="block rounded px-3 py-2 text-sm text-sura-ivory/80 hover:bg-sura-ink/80">Dashboard</Link>
-                  <Link to="/settings" className="block rounded px-3 py-2 text-sm text-sura-ivory/80 hover:bg-sura-ink/80">Settings</Link>
                   <Link to="/profile" className="block rounded px-3 py-2 text-sm text-sura-ivory/80 hover:bg-sura-ink/80">Profile</Link>
                   <button onClick={logout} className="mt-2 w-full rounded bg-transparent px-3 py-2 text-left text-sm text-sura-ivory/80 hover:bg-sura-ink/80">Sign out</button>
                 </div>
               )}
             </div>
           )}
-
-          <button onClick={toggleTheme} className="rounded-full border border-sura-border/30 bg-sura-ink/80 px-3 py-2 text-sm text-sura-ivory transition hover:border-sura-gold/50 hover:text-sura-ivory">
-            {mode === 'dark' ? strings.lightMode : strings.darkMode}
-          </button>
-          <button onClick={() => toggleLocale()} className="rounded-full border border-sura-border/30 bg-sura-ink/80 px-3 py-2 text-sm text-sura-ivory transition hover:border-sura-gold/50 hover:text-sura-ivory">{locale === 'en' ? 'AR' : 'EN'}</button>
         </div>
       </div>
     </header>

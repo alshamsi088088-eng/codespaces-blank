@@ -1,16 +1,24 @@
 
-import { useState, FormEvent } from 'react';
+import { useEffect, useState, FormEvent } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { signInWithPopup } from 'firebase/auth';
+import { auth, provider } from '../firebaseConfig';
 import { useAuth } from '../context/AuthContext';
 import { useLocale } from '../context/LocaleContext';
 
 export function LoginPage() {
-  const { login } = useAuth();
+  const { user, login } = useAuth();
   const { locale } = useLocale();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
   const navigate = useNavigate();
+
+  useEffect(() => {
+    if (user) {
+      navigate('/dashboard');
+    }
+  }, [user, navigate]);
 
   const submit = async (event: FormEvent) => {
     event.preventDefault();
@@ -19,6 +27,17 @@ export function LoginPage() {
       navigate('/dashboard');
     } catch (err) {
       setError(locale === 'ar' ? 'يرجى التحقق من بيانات الحساب.' : 'Please check your login details.');
+    }
+  };
+
+  const handleGoogleLogin = async () => {
+    try {
+      const result = await signInWithPopup(auth, provider);
+      const userMetadata = result.user.metadata;
+      const isNewUser = userMetadata.creationTime === userMetadata.lastSignInTime;
+      navigate(isNewUser ? '/profile' : '/dashboard');
+    } catch (error) {
+      setError(locale === 'ar' ? 'فشل تسجيل الدخول عبر Google.' : 'Google login failed.');
     }
   };
 
@@ -34,7 +53,7 @@ export function LoginPage() {
       <div className="space-y-3 text-center text-sm text-sura-ivory/70">
         <p>{locale === 'ar' ? 'أو تابع مع' : 'Or continue with'}</p>
         <div className="flex items-center justify-center gap-3">
-          <a href="/api/auth/google" className="rounded-full border border-sura-ivory/20 px-4 py-3 text-sm">Google</a>
+          <button type="button" onClick={handleGoogleLogin} className="rounded-full border border-sura-ivory/20 px-4 py-3 text-sm">Google</button>
           <a href="/api/auth/apple" className="rounded-full border border-sura-ivory/20 px-4 py-3 text-sm">Apple</a>
         </div>
       </div>

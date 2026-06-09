@@ -81,7 +81,7 @@ export function NovelsPage() {
             <p>{activeChapter?.content || '...'}</p>
           </div>
           <div className="mt-8 grid gap-3 rounded-3xl border border-sura-ivory/10 bg-black/20 p-4 sm:grid-cols-3">
-            {activeNovel?.chapters.map((chapter) => (
+            {activeNovel?.chapters?.map((chapter) => (
               <button key={chapter.id} onClick={() => setActiveChapter(chapter)} className={`rounded-2xl p-4 text-left text-sm transition ${activeChapter?.id === chapter.id ? 'bg-sura-gold text-sura-dark' : 'bg-sura-dark/80 text-sura-ivory/80 hover:bg-sura-dark/100'}`}>
                 <div className="font-semibold">{chapter.title}</div>
                 <div className="mt-1 text-xs">{chapter.readingTime}</div>

@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react';
 import { auth, db } from '../firebaseConfig';
 import { doc, onSnapshot, setDoc, deleteDoc } from 'firebase/firestore';
 import { useAuth } from '../context/AuthContext';
+import { trackBookmark } from '../lib/analytics';
 
 interface BookmarkButtonProps {
   entityId: string;
@@ -33,6 +34,7 @@ export function BookmarkButton({ entityId, entityType }: BookmarkButtonProps) {
     try {
       if (bookmarked) {
         await deleteDoc(bookmarkRef);
+        trackBookmark(entityId, entityType, 'remove');
       } else {
         await setDoc(bookmarkRef, {
           uid: currentUser.uid,
@@ -40,6 +42,7 @@ export function BookmarkButton({ entityId, entityType }: BookmarkButtonProps) {
           entityType,
           updatedAt: new Date().toISOString()
         });
+        trackBookmark(entityId, entityType, 'add');
       }
     } catch (error) {
       console.error('Bookmark update failed', error);

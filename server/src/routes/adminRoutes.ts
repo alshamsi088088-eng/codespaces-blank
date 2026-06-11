@@ -5,4 +5,4 @@ import { authGuard } from '../middleware/authGuard.js';
 import { roleGuard } from '../middleware/roleGuard.js';
 
 export const adminRoutes = Router();
-adminRoutes.get('/overview', authGuard, roleGuard('admin'), getOverview);
+adminRoutes.get('/overview', authGuard, roleGuard(['admin', 'editor']), getOverview);

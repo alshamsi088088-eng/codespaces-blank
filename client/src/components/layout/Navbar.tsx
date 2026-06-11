@@ -96,31 +96,32 @@ export function Navbar() {
             )}
 
             {user && (
-            <div className="relative">
-              <button
-                onClick={() => setOpen((v) => !v)}
-                className="flex items-center gap-2 rounded-full border border-sura-border/30 bg-sura-ink/80 px-3 py-1 text-sm text-sura-ivory transition hover:border-sura-gold/50"
-                aria-haspopup="menu"
-                aria-expanded={open}
-              >
-                {user.avatar ? (
-                  <img src={user.avatar} alt={user.name} className="h-8 w-8 rounded-full object-cover" />
-                ) : (
-                  <div className="flex h-8 w-8 items-center justify-center rounded-full bg-sura-border/20 text-xs">{user.name?.charAt(0)}</div>
-                )}
-                <span className="hidden truncate text-sm text-sura-ivory/80 sm:inline">{user.name}</span>
-              </button>
+              <div className="relative">
+                <button
+                  onClick={() => setOpen((v) => !v)}
+                  className="flex items-center gap-2 rounded-full border border-sura-border/30 bg-sura-ink/80 px-3 py-1 text-sm text-sura-ivory transition hover:border-sura-gold/50"
+                  aria-haspopup="menu"
+                  aria-expanded={open}
+                >
+                  {user.avatar ? (
+                    <img src={user.avatar} alt={user.name} className="h-8 w-8 rounded-full object-cover" />
+                  ) : (
+                    <div className="flex h-8 w-8 items-center justify-center rounded-full bg-sura-border/20 text-xs">{user.name?.charAt(0)}</div>
+                  )}
+                  <span className="hidden truncate text-sm text-sura-ivory/80 sm:inline">{user.name}</span>
+                </button>
 
-              {open && (
-                <div ref={menuRef} className="absolute right-0 mt-2 w-48 origin-top-right rounded-md border border-sura-border/20 bg-sura-ink/95 p-2 shadow-soft">
-                  <Link to="/dashboard" className="block rounded px-3 py-2 text-sm text-sura-ivory/80 hover:bg-sura-ink/80">Dashboard</Link>
-                  <Link to="/profile" className="block rounded px-3 py-2 text-sm text-sura-ivory/80 hover:bg-sura-ink/80">Profile</Link>
-                  <button onClick={logout} className="mt-2 w-full rounded bg-transparent px-3 py-2 text-left text-sm text-sura-ivory/80 hover:bg-sura-ink/80">Sign out</button>
-                </div>
-              )}
-            </div>
-          )}
+                {open && (
+                  <div ref={menuRef} className="absolute right-0 mt-2 w-48 origin-top-right rounded-md border border-sura-border/20 bg-sura-ink/95 p-2 shadow-soft">
+                    <Link to="/dashboard" className="block rounded px-3 py-2 text-sm text-sura-ivory/80 hover:bg-sura-ink/80">Dashboard</Link>
+                    <Link to="/profile" className="block rounded px-3 py-2 text-sm text-sura-ivory/80 hover:bg-sura-ink/80">Profile</Link>
+                    <button onClick={logout} className="mt-2 w-full rounded bg-transparent px-3 py-2 text-left text-sm text-sura-ivory/80 hover:bg-sura-ink/80">Sign out</button>
+                  </div>
+                )}
+              </div>
+            )}
         </div>
+      </div>
       </div>
     </header>
   );

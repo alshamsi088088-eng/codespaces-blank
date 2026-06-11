@@ -4,6 +4,7 @@ import bcrypt from 'bcryptjs';
 import crypto from 'crypto';
 import jwt from 'jsonwebtoken';
 import passport from 'passport';
+import fs from 'fs';
 import { prisma } from '../services/prisma.js';
 import { createTokenPair, sendAuthCookies } from '../services/tokenService.js';
 import { sendVerificationEmail, sendWelcomeEmail, sendPasswordResetEmail } from '../services/emailService.js';
@@ -13,14 +14,16 @@ import { JWT_REFRESH_SECRET } from '../services/config.js';
 
 if (process.env.FIREBASE_SERVICE_ACCOUNT) {
   try {
-    const serviceAccount = JSON.parse(process.env.FIREBASE_SERVICE_ACCOUNT);
+    const raw = process.env.FIREBASE_SERVICE_ACCOUNT;
+    const serviceAccount = raw?.trim().startsWith('{')
+      ? JSON.parse(raw)
+      : JSON.parse(raw ? fs.readFileSync(raw, 'utf-8') : '{}');
     initFirebaseAdmin(serviceAccount);
   } catch (error) {
-    console.warn('Could not parse FIREBASE_SERVICE_ACCOUNT, falling back to application default credentials.');
-    initFirebaseAdmin();
+    console.warn('Could not initialize Firebase Admin from FIREBASE_SERVICE_ACCOUNT. Firebase token verification features may be disabled in this environment.');
   }
 } else {
-  initFirebaseAdmin();
+  console.warn('FIREBASE_SERVICE_ACCOUNT is not set. Firebase token verification features may be disabled in this environment.');
 }
 
 initGoogleStrategy();
@@ -37,7 +40,7 @@ export async function register(req: Request, res: Response, next: NextFunction) 
         name,
         email,
         password: hashed,
-        role: 'member',
+        role: 'reader',
         locale: 'en',
         theme: 'dark',
         verified: false,
@@ -159,7 +162,7 @@ export function googleAuthCallback(req: Request, res: Response, next: NextFuncti
         data: {
           name: profile.name,
           email,
-          role: 'member',
+          role: 'reader',
           locale: 'en',
           theme: 'dark',
           verified: true
@@ -184,7 +187,7 @@ export async function appleAuthCallback(req: Request, res: Response) {
       data: {
         name,
         email,
-        role: 'member',
+        role: 'reader',
         locale: 'en',
         theme: 'dark',
         verified: true
@@ -215,7 +218,7 @@ export async function firebaseAuthCallback(req: Request, res: Response) {
         data: {
           name,
           email,
-          role: 'member',
+          role: 'reader',
           locale: 'en',
           theme: 'dark',
           verified: true,
@@ -226,6 +229,8 @@ export async function firebaseAuthCallback(req: Request, res: Response) {
       await prisma.user.update({ where: { id: user.id }, data: { avatar: photo } });
       user = await prisma.user.findUnique({ where: { id: user.id } });
     }
+
+    if (!user) return res.status(500).json({ message: 'Failed to resolve user after Firebase auth' });
 
     const tokens = createTokenPair(user.id);
     sendAuthCookies(res, tokens);

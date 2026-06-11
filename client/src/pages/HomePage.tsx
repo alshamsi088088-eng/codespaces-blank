@@ -1,23 +1,60 @@
-
 import { motion } from 'framer-motion';
 import { useLocale } from '../context/LocaleContext';
 import { useAuth } from '../context/AuthContext';
 import { useEffect, useMemo, useState } from 'react';
 import axios from 'axios';
+import { auth, db } from '../firebaseConfig';
+import { collection, onSnapshot, query, where } from 'firebase/firestore';
+import { WeeklyTargetBanner } from '../components/WeeklyTargetBanner';
 
 interface FeatureCard {
   title: string;
   description: string;
 }
 
+interface ReadingProgressItem {
+  uid: string;
+  progress: number;
+  updatedAt?: unknown;
+}
+
 export function HomePage() {
   const { locale, strings } = useLocale();
   const { user } = useAuth();
   const [featured, setFeatured] = useState<FeatureCard[]>([]);
+  const [weeklyProgressCount, setWeeklyProgressCount] = useState(0);
+  const [weeklyAverage, setWeeklyAverage] = useState(0);
 
   useEffect(() => {
     axios.get('/api/content/home').then((res) => setFeatured(res.data.featured));
   }, []);
+
+  useEffect(() => {
+    const currentUser = auth.currentUser;
+    if (!currentUser) return;
+
+    const progressQuery = query(collection(db, 'readingProgress'), where('uid', '==', currentUser.uid));
+    const unsubscribe = onSnapshot(progressQuery, (snapshot) => {
+      const items = snapshot.docs.map((doc) => doc.data() as ReadingProgressItem);
+      if (!items.length) {
+        setWeeklyProgressCount(0);
+        setWeeklyAverage(0);
+        return;
+      }
+      const completedItems = items.filter((item) => Number(item.progress || 0) >= 70).length;
+      const avg = items.reduce((sum, item) => sum + Number(item.progress || 0), 0) / items.length;
+      setWeeklyProgressCount(completedItems);
+      setWeeklyAverage(Math.round(avg));
+    });
+
+    return () => unsubscribe();
+  }, [user?.id]);
+
+  const encouragement = useMemo(() => {
+    if (weeklyProgressCount >= 7) return locale === 'ar' ? 'أداء رائع هذا الأسبوع!' : 'Excellent momentum this week!';
+    if (weeklyProgressCount >= 3) return locale === 'ar' ? 'استمر، أنت على الطريق الصحيح.' : 'Keep going, you are on track.';
+    return locale === 'ar' ? 'ابدأ بهدف بسيط هذا الأسبوع.' : 'Start with a small goal this week.';
+  }, [weeklyProgressCount, locale]);
 
   const heroTitle = locale === 'ar' ? 'مساحة للفكر والإبداع' : 'A Space for Thought & Creativity';
   const heroSubtitle = locale === 'ar' ? 'منصة نشر راقية للأدب والمعرفة والثقافة الرقمية.' : 'A refined publishing platform for literature, knowledge, and digital culture.';
@@ -50,6 +87,32 @@ export function HomePage() {
           ))}
         </div>
       </section>
+
+      <WeeklyTargetBanner />
+
+      <section className="rounded-3xl border border-sura-ivory/10 bg-sura-ink/70 p-8">
+        <div className="flex flex-wrap items-center justify-between gap-4">
+          <div>
+            <div className="text-xs uppercase tracking-[0.3em] text-sura-gold">{locale === 'ar' ? 'ملخص الأسبوع' : 'Weekly reading summary'}</div>
+            <h3 className="mt-2 text-2xl font-semibold">{locale === 'ar' ? 'تقدم القراءة' : 'Reading progress'}</h3>
+            <p className="mt-2 text-sm text-sura-ivory/75">{encouragement}</p>
+          </div>
+          <div className="rounded-2xl border border-sura-ivory/20 bg-black/20 px-5 py-4 text-right">
+            <div className="text-xs text-sura-ivory/70">{locale === 'ar' ? 'مواد مكتملة هذا الأسبوع' : 'Completed this week'}</div>
+            <div className="text-3xl font-semibold text-sura-gold">{weeklyProgressCount}</div>
+          </div>
+        </div>
+        <div className="mt-5">
+          <div className="mb-2 flex items-center justify-between text-xs text-sura-ivory/70">
+            <span>{locale === 'ar' ? 'متوسط التقدم' : 'Average progress'}</span>
+            <span>{weeklyAverage}%</span>
+          </div>
+          <div className="h-3 overflow-hidden rounded-full bg-sura-ivory/10">
+            <div className="h-full rounded-full bg-sura-gold" style={{ width: `${Math.max(0, Math.min(100, weeklyAverage))}%` }} />
+          </div>
+        </div>
+      </section>
+
       <section id="articles" className="grid gap-6 lg:grid-cols-3">
         <article className="rounded-3xl border border-sura-ivory/10 bg-sura-ink/70 p-6">
           <div className="text-xs uppercase tracking-[0.3em] text-sura-gold">{strings.featured}</div>

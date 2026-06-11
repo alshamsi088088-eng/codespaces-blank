@@ -1,12 +1,25 @@
 
 import { Request, Response, NextFunction } from 'express';
 
-export function roleGuard(role: string) {
+function normalizeRole(role?: string) {
+  const value = (role || '').toLowerCase();
+  if (value === 'admin') return 'admin';
+  if (value === 'editor') return 'editor';
+  if (value === 'reader' || value === 'member') return 'reader';
+  return value;
+}
+
+export function roleGuard(allowedRoles: string | string[]) {
+  const normalizedAllowed = (Array.isArray(allowedRoles) ? allowedRoles : [allowedRoles]).map((role) => normalizeRole(role));
+
   return (req: Request, res: Response, next: NextFunction) => {
     const user = req.user as any;
-    if (!user || user.role !== role) {
+    const userRole = normalizeRole(user?.role);
+
+    if (!user || !normalizedAllowed.includes(userRole)) {
       return res.status(403).json({ message: 'Forbidden' });
     }
+
     next();
   };
 }

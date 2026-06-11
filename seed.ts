@@ -1,5 +1,5 @@
 import 'dotenv/config';
-import { initializeSeed } from '../src/services/seedService.js';
+import { initializeSeed } from './server/src/services/seedService.js';
 
 initializeSeed()
   .then(() => {

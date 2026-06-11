@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState } from 'react';
 import { auth, db } from '../firebaseConfig';
 import { doc, onSnapshot, setDoc, serverTimestamp } from 'firebase/firestore';
+import { trackReadingProgress } from '../lib/analytics';
 
 interface ReadingProgressTrackerProps {
   entityId: string;
@@ -43,6 +44,7 @@ export function ReadingProgressTracker({ entityId, entityType, contentId, curren
           progress: percentage,
           updatedAt: serverTimestamp()
         });
+        trackReadingProgress(entityId, entityType, percentage);
       } catch (error) {
         console.error('Failed to save reading progress', error);
       }

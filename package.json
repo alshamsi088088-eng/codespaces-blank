@@ -13,9 +13,12 @@
     "db:seed": "npm --workspace=server run db:seed"
   },
   "devDependencies": {
-    "concurrently": "^8.2.0"
+    "@prisma/client": "^6.0.0",
+    "concurrently": "^8.2.0",
+    "prisma": "^6.0.0"
   },
   "dependencies": {
+    "@supabase/supabase-js": "^2.108.1",
     "firebase": "^12.14.0",
     "firebase-admin": "^14.0.0"
   }
